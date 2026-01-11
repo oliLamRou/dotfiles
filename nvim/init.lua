@@ -41,7 +41,7 @@ vim.keymap.set('n', '<C-l>', '<C-w>l')
 vim.opt.clipboard = "unnamedplus"
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()
-    vim.highlight.on_yank({higroup="IncSearch", timeout=500})
+    vim.hl.on_yank({higroup="IncSearch", timeout=500})
   end,
 })
 
@@ -70,15 +70,12 @@ vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 -- Formatting
 require("conform").setup({
   formatters_by_ft = {
-    lua = { "stylua" },
-    -- Conform will run multiple formatters sequentially
     python = { "isort", "black" },
-    -- You can customize some of the format options for the filetype (:help conform.format)
-    rust = { "rustfmt", lsp_format = "fallback" },
-    -- Conform will run the first available formatter
-    javascript = { "prettierd", "prettier", stop_after_first = true },
   },
 })
 
---LSP
-vim.lsp.enable({"lua_ls"})
+-- -- Syntax Highlighting (Need C)
+-- require('nvim-treesitter.configs').setup({
+--   ensure_installed = { "python", "lua" },
+--   highlight = { enable = true },
+-- })
