@@ -90,26 +90,16 @@ vim.diagnostic.config({
   float = { border = "rounded" },
 })
 
--- LSP Setup
+-- LSP Setup (Neovim 0.11+ native approach)
 require("mason").setup()
 require("mason-lspconfig").setup({
   ensure_installed = { "lua_ls", "pyright" },
 })
 
-local lspconfig = require("lspconfig")
-
--- Lua LSP with semantic tokens
-lspconfig.lua_ls.setup({
-  on_attach = function(client, bufnr)
-    client.server_capabilities.semanticTokensProvider = {
-      full = true,
-      legend = {
-        tokenModifiers = client.server_capabilities.semanticTokensProvider.legend.tokenModifiers,
-        tokenTypes = client.server_capabilities.semanticTokensProvider.legend.tokenTypes,
-      },
-      range = true,
-    }
-  end,
+-- Use native vim.lsp.config (new in 0.11)
+vim.lsp.config('lua_ls', {
+  cmd = { 'lua-language-server' },
+  root_markers = { '.luarc.json', '.luarc.jsonc', '.git' },
   settings = {
     Lua = {
       diagnostics = { globals = { 'vim' } },
@@ -118,15 +108,14 @@ lspconfig.lua_ls.setup({
         checkThirdParty = false,
       },
       telemetry = { enable = false },
-      semantic = {
-        enable = true,  -- Enable semantic tokens
-      },
+      semantic = { enable = true },
     },
   },
 })
 
--- Python LSP with semantic tokens
-lspconfig.pyright.setup({
+vim.lsp.config('pyright', {
+  cmd = { 'pyright-langserver', '--stdio' },
+  root_markers = { 'pyproject.toml', 'setup.py', 'requirements.txt', '.git' },
   settings = {
     python = {
       analysis = {
@@ -137,20 +126,11 @@ lspconfig.pyright.setup({
       },
     },
   },
-  capabilities = vim.tbl_deep_extend(
-    'force',
-    vim.lsp.protocol.make_client_capabilities(),
-    {
-      textDocument = {
-        semanticTokens = {
-          dynamicRegistration = false,
-          tokenTypes = {},
-          tokenModifiers = {},
-        },
-      },
-    }
-  ),
 })
+
+-- Enable LSPs for filetypes
+vim.lsp.enable('lua_ls')
+vim.lsp.enable('pyright')
 
 -- LSP Keybindings & Features
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -161,7 +141,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     -- Enable semantic highlighting if available
     if client and client.server_capabilities.semanticTokensProvider then
       vim.lsp.semantic_tokens.start(args.buf, client.id)
-      print("Semantic tokens enabled for " .. client.name)  -- Debug message
     end
 
     -- Keybindings
