@@ -1,3 +1,4 @@
+
 vim.g.mapleader = " "
 
 vim.opt.completeopt = {'menu', 'menuone', 'noselect'}
@@ -52,6 +53,13 @@ vim.keymap.set('n', '<leader>fg', '<cmd>Pick grep_live<cr>', { desc = 'Live grep
 vim.keymap.set('n', '<leader>fb', '<cmd>Pick buffers<cr>', { desc = 'Find buffers' })
 vim.keymap.set('n', '<leader>fh', '<cmd>Pick help<cr>', { desc = 'Help tags' })
 
+
+-- Mini Completion
+require('mini.completion').setup()
+
+--Mini cursorword
+require("mini.cursorword").setup()
+
 -- Theme
 require("catppuccin").setup({
   flavour = "macchiato", -- latte, frappe, macchiato, mocha
@@ -74,8 +82,103 @@ require("conform").setup({
   },
 })
 
--- -- Syntax Highlighting (Need C)
--- require('nvim-treesitter.configs').setup({
---   ensure_installed = { "python", "lua" },
---   highlight = { enable = true },
--- })
+-- Diagnostics
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  update_in_insert = false,
+  float = { border = "rounded" },
+})
+
+-- LSP Setup
+require("mason").setup()
+require("mason-lspconfig").setup({
+  ensure_installed = { "lua_ls", "pyright" },
+})
+
+local lspconfig = require("lspconfig")
+
+-- Lua LSP with semantic tokens
+lspconfig.lua_ls.setup({
+  on_attach = function(client, bufnr)
+    client.server_capabilities.semanticTokensProvider = {
+      full = true,
+      legend = {
+        tokenModifiers = client.server_capabilities.semanticTokensProvider.legend.tokenModifiers,
+        tokenTypes = client.server_capabilities.semanticTokensProvider.legend.tokenTypes,
+      },
+      range = true,
+    }
+  end,
+  settings = {
+    Lua = {
+      diagnostics = { globals = { 'vim' } },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
+      },
+      telemetry = { enable = false },
+      semantic = {
+        enable = true,  -- Enable semantic tokens
+      },
+    },
+  },
+})
+
+-- Python LSP with semantic tokens
+lspconfig.pyright.setup({
+  settings = {
+    python = {
+      analysis = {
+        autoSearchPaths = true,
+        diagnosticMode = "openFilesOnly",
+        useLibraryCodeForTypes = true,
+        typeCheckingMode = "basic",
+      },
+    },
+  },
+  capabilities = vim.tbl_deep_extend(
+    'force',
+    vim.lsp.protocol.make_client_capabilities(),
+    {
+      textDocument = {
+        semanticTokens = {
+          dynamicRegistration = false,
+          tokenTypes = {},
+          tokenModifiers = {},
+        },
+      },
+    }
+  ),
+})
+
+-- LSP Keybindings & Features
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local opts = { buffer = args.buf }
+
+    -- Enable semantic highlighting if available
+    if client and client.server_capabilities.semanticTokensProvider then
+      vim.lsp.semantic_tokens.start(args.buf, client.id)
+      print("Semantic tokens enabled for " .. client.name)  -- Debug message
+    end
+
+    -- Keybindings
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+    vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
+    vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+  end,
+})
+
+-- Diagnostics
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  update_in_insert = false,
+  float = { border = "rounded" },
+})
