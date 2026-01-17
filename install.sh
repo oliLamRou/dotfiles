@@ -5,12 +5,6 @@ brew install starship
 git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting ~/.zsh/zsh-syntax-highlighting
 
-#Bash
-# git clone https://github.com/akinomyoga/ble.sh.git ~/.ble.sh
-#.bashrc
-# Ble.sh (autosuggestions + syntax highlighting)
-# [[ $- == *i* ]] && source ~/.ble.sh/out/ble.sh
-
 #Neo Vim
 mkdir -p ~/.config/nvim/pack/plugins/start
 
@@ -26,19 +20,13 @@ git clone --depth=1 https://github.com/catppuccin/nvim \
 git clone --depth=1 https://github.com/echasnovski/mini.nvim \
   ~/.config/nvim/pack/plugins/start/mini.nvim
 
-# Mason
-# git clone --depth=1 https://github.com/williamboman/mason.nvim \
-#   ~/.config/nvim/pack/plugins/start/mason.nvim
-# git clone --depth=1 https://github.com/williamboman/mason-lspconfig.nvim \
-#   ~/.config/nvim/pack/plugins/start/mason-lspconfig.nvim
-# git clone --depth=1 https://github.com/neovim/nvim-lspconfig \
-#   ~/.config/nvim/pack/plugins/start/nvim-lspconfig
-# git clone --depth=1 https://github.com/nvim-treesitter/nvim-treesitter \
-#   ~/.config/nvim/pack/plugins/start/nvim-treesitter
+brew install tree-sitter-cli
+git clone --depth=1 https://github.com/nvim-treesitter/nvim-treesitter \
+  ~/.config/nvim/pack/plugins/start/nvim-treesitter
 
 #SymLink
 ln -sf $HOME/dotfiles/zshrc $HOME/.zshrc 
 ln -sf $HOME/dotfiles/nvim/init.lua $HOME/.config/nvim/init.lua
 
 # Python Formatter
-pip install --break-system-packages black isort
+brew install black

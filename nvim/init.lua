@@ -1,61 +1,62 @@
-
 vim.g.mapleader = " "
 
-vim.opt.completeopt = {'menu', 'menuone', 'noselect'}
+vim.opt.completeopt = { "menu", "menuone", "noselect" }
 vim.opt.number = true
 vim.opt.relativenumber = true
-vim.opt.ignorecase = true      -- case insensitive search
-vim.opt.smartcase = true       -- unless you use capitals
-vim.opt.scrolloff = 8          -- keep 8 lines above/below cursor
-vim.opt.expandtab = true       -- spaces instead of tabs
-vim.opt.shiftwidth = 2         -- indent size
-vim.opt.tabstop = 2   
+vim.opt.ignorecase = true -- case insensitive search
+vim.opt.smartcase = true  -- unless you use capitals
+vim.opt.scrolloff = 8     -- keep 8 lines above/below cursor
+vim.opt.expandtab = true  -- spaces instead of tabs
+vim.opt.shiftwidth = 2    -- indent size
+vim.opt.tabstop = 2
+-- Soft line wrapping
+vim.opt.wrap = true
+vim.opt.linebreak = true
 --Search
-vim.opt.hlsearch = true         -- highlight all matches
-vim.opt.incsearch = true        -- search as you type
-vim.opt.shortmess:append("S")   -- shows [1/3] in command line
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>', { desc = 'Clear search highlight' })
+vim.opt.hlsearch = true       -- highlight all matches
+vim.opt.incsearch = true      -- search as you type
+vim.opt.shortmess:append("S") -- shows [1/3] in command line
+vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
 --Redo
-vim.keymap.set('n', 'U', '<C-r>', { desc = 'Redo' })
+vim.keymap.set("n", "U", "<C-r>", { desc = "Redo" })
 
 -- Move lines with Alt+arrows (visual mode)
-vim.keymap.set('v', '<A-Down>', ":m '>+1<CR>gv=gv", { desc = 'Move line down' })
-vim.keymap.set('v', '<A-Up>', ":m '<-2<CR>gv=gv", { desc = 'Move line up' })
+vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
+vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv", { desc = "Move line up" })
 
 -- Move lines with Alt+arrows (normal mode)
-vim.keymap.set('n', '<A-Down>', ':m .+1<CR>==', { desc = 'Move line down' })
-vim.keymap.set('n', '<A-Up>', ':m .-2<CR>==', { desc = 'Move line up' })
+vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", { desc = "Move line down" })
+vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", { desc = "Move line up" })
 
 -- Buffer navigation
-vim.keymap.set('n', '<S-L>', ':bn<CR>', { desc = 'Next buffer' })
-vim.keymap.set('n', '<S-H>', ':bp<CR>', { desc = 'Previous buffer' })
-vim.keymap.set('n', '<leader>bd', ':bp | bd #<CR>', { desc = 'Delete buffer, keep window' })
+vim.keymap.set("n", "<S-L>", ":bn<CR>", { desc = "Next buffer" })
+vim.keymap.set("n", "<S-H>", ":bp<CR>", { desc = "Previous buffer" })
+vim.keymap.set("n", "<leader>bd", ":bp | bd #<CR>", { desc = "Delete buffer, keep window" })
 
 -- Windows Navigation
-vim.keymap.set('n', '<C-h>', '<C-w>h')
-vim.keymap.set('n', '<C-j>', '<C-w>j')
-vim.keymap.set('n', '<C-k>', '<C-w>k')
-vim.keymap.set('n', '<C-l>', '<C-w>l')
+vim.keymap.set("n", "<C-h>", "<C-w>h")
+vim.keymap.set("n", "<C-j>", "<C-w>j")
+vim.keymap.set("n", "<C-k>", "<C-w>k")
+vim.keymap.set("n", "<C-l>", "<C-w>l")
 
 --Copy Paste
 vim.opt.clipboard = "unnamedplus"
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()
-    vim.hl.on_yank({higroup="IncSearch", timeout=500})
+    vim.hl.on_yank({ higroup = "IncSearch", timeout = 500 })
   end,
 })
 
 -- Mini Pick Search
-require('mini.pick').setup()
-vim.keymap.set('n', '<leader>ff', '<cmd>Pick files<cr>', { desc = 'Find files' })
-vim.keymap.set('n', '<leader>fg', '<cmd>Pick grep_live<cr>', { desc = 'Live grep' })
-vim.keymap.set('n', '<leader>fb', '<cmd>Pick buffers<cr>', { desc = 'Find buffers' })
-vim.keymap.set('n', '<leader>fh', '<cmd>Pick help<cr>', { desc = 'Help tags' })
-
+require("mini.pick").setup()
+vim.keymap.set("n", "<leader>ff", "<cmd>Pick files<cr>", { desc = "Find files" })
+vim.keymap.set("n", "<leader>fg", "<cmd>Pick grep_live<cr>", { desc = "Live grep" })
+vim.keymap.set("n", "<leader>fb", "<cmd>Pick buffers<cr>", { desc = "Find buffers" })
+vim.keymap.set("n", "<leader>fh", "<cmd>Pick help<cr>", { desc = "Help tags" })
 
 -- Mini Completion
-require('mini.completion').setup()
+require("mini.completion").setup({})
 
 --Mini cursorword
 require("mini.cursorword").setup()
@@ -71,93 +72,36 @@ vim.cmd.colorscheme("catppuccin")
 require("oil").setup({
   view_options = {
     show_hidden = true,
-  }
+  },
 })
 vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
--- Formatting
+-- Syntax Highlighting
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'python', 'lua', 'c' },
+  callback = function() vim.treesitter.start() end,
+})
+
+-- Formatter
 require("conform").setup({
   formatters_by_ft = {
-    python = { "isort", "black" },
+    python = { "black" },
+    lua = { "stylua" },
+    c = { "clang-format" },
   },
 })
 
--- Diagnostics
-vim.diagnostic.config({
-  virtual_text = true,
-  signs = true,
-  update_in_insert = false,
-  float = { border = "rounded" },
-})
-
--- LSP Setup (Neovim 0.11+ native approach)
-require("mason").setup()
-require("mason-lspconfig").setup({
-  ensure_installed = { "lua_ls", "pyright" },
-})
-
--- Use native vim.lsp.config (new in 0.11)
-vim.lsp.config('lua_ls', {
-  cmd = { 'lua-language-server' },
-  root_markers = { '.luarc.json', '.luarc.jsonc', '.git' },
-  settings = {
-    Lua = {
-      diagnostics = { globals = { 'vim' } },
-      workspace = {
-        library = vim.api.nvim_get_runtime_file("", true),
-        checkThirdParty = false,
-      },
-      telemetry = { enable = false },
-      semantic = { enable = true },
-    },
-  },
-})
-
-vim.lsp.config('pyright', {
-  cmd = { 'pyright-langserver', '--stdio' },
-  root_markers = { 'pyproject.toml', 'setup.py', 'requirements.txt', '.git' },
-  settings = {
-    python = {
-      analysis = {
-        autoSearchPaths = true,
-        diagnosticMode = "openFilesOnly",
-        useLibraryCodeForTypes = true,
-        typeCheckingMode = "basic",
-      },
-    },
-  },
-})
-
--- Enable LSPs for filetypes
-vim.lsp.enable('lua_ls')
-vim.lsp.enable('pyright')
-
--- LSP Keybindings & Features
-vim.api.nvim_create_autocmd('LspAttach', {
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    local opts = { buffer = args.buf }
-
-    -- Enable semantic highlighting if available
-    if client and client.server_capabilities.semanticTokensProvider then
-      vim.lsp.semantic_tokens.start(args.buf, client.id)
-    end
-
-    -- Keybindings
-    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-    vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
-    vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
+-- Async format on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = { "*" },
+  callback = function()
+    local timeout = 5000
+    local file = vim.fn.expand("%:p")
+    vim.fn.jobstart({ "black", "--quiet", file }, {
+      on_exit = function()
+        -- Reload buffer after formatting
+        vim.cmd("checktime")
+      end,
+    })
   end,
-})
-
--- Diagnostics
-vim.diagnostic.config({
-  virtual_text = true,
-  signs = true,
-  update_in_insert = false,
-  float = { border = "rounded" },
 })
